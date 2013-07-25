@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from django.conf.urls.defaults import patterns, url
 from django.views.decorators.csrf import csrf_protect
+if settings.USE_DBTEMPLATES:
+    from dbtemplates.models import Template
 
 
 class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
@@ -46,21 +48,29 @@ class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
         return my_urls + urls
 
     def formfield_for_dbfield(self, db_field, **kwargs):
+        new_field = None
         if db_field.name == 'content':
             if settings.USE_ADMIN_AREA_TINYMCE:
-                return db_field.formfield(widget=TinyMCE(
-                attrs={'cols': 80, 'rows': 30},
+                new_field = db_field.formfield(widget=TinyMCE(
+                    attrs={'cols':  80, 'rows': 30},
                     mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
-                    ))
-        elif db_field.name == "template_name" and settings.USE_TEMPLATE_DROPDOWN:
+                ))
+        else:
             prev_field = super(FlatPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
-            return forms.FilePathField(label=prev_field.label,
-                                       path=settings.TEMPLATE_DIR,
-                                       required=False,
-                                       recursive=False,
-                                       match=settings.TEMPLATE_FILES_REGEXP,
-                                       )
-        return super(FlatPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+            if db_field.name == "template_name" and settings.USE_TEMPLATE_DROPDOWN:
+                if settings.USE_DBTEMPLATES:
+                    new_field = forms.ChoiceField(label=prev_field.label,
+                                                  help_text=prev_field.help_text,
+                                                  choices=[(item.name, item.name) for item in Template.objects.all()])
+                else:
+                    new_field = forms.FilePathField(label=prev_field.label,
+                                                    path=settings.TEMPLATE_DIR,
+                                                    help_text=prev_field.help_text,
+                                                    required=False,
+                                                    recursive=False,
+                                                    match=settings.TEMPLATE_FILES_REGEXP)
+        return new_field if new_field is not None else prev_field
+
     # redefining
     fieldsets = (
         (None, {'fields': ('url', 'title', 'content', 'sites')}),

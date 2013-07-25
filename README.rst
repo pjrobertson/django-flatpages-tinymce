@@ -109,6 +109,7 @@ override them in site-wide settings.py file. The main of them are:
   * FLATPAGES_TEMPLATE_DIR (default: TEMPLATE_DIRS[0] + 'flatpages') - directory where
     flatpages templates are placed
   * FLATPAGES USE_MINIFIED (defalut: not settings.DEBUG) - use minified versions of JS/CSS
+  * FLATPAGES_USE_DBTEMPLATES (default: False) - If you are using to store templates django_dbtemplates - set it  to True. In  dropdown list will be listed all templates from dbtemplates
 
 Further, you will want to change default settings of TinyMCE Editor.
 
