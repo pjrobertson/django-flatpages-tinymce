@@ -52,7 +52,7 @@ class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
         if db_field.name == 'content':
             if settings.USE_ADMIN_AREA_TINYMCE:
                 new_field = db_field.formfield(widget=TinyMCE(
-                    attrs={'cols':  80, 'rows': 30},
+                    attrs=settings.TINYMCE_DEFAULT_CONFIG,
                     mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
                 ))
         else:
