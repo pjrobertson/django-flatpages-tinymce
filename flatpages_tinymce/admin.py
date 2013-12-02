@@ -10,7 +10,11 @@ from tinymce.widgets import TinyMCE
 from flatpages_tinymce import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
-from django.conf.urls.defaults import patterns, url
+# django < 1.3 compatibility
+try:
+    from django.conf.urls.defaults import patterns, url
+except ImportError:
+    from django.conf.urls import patterns, url
 from django.views.decorators.csrf import csrf_protect
 
 
